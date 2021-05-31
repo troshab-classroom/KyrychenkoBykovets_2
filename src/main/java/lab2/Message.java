@@ -2,9 +2,8 @@ package lab2;
 
 import java.nio.ByteBuffer;
 import lombok.Data;
-import java.nio.ByteBuffer;
 
-    @Data
+@Data
     public class Message {
 
         Integer cType;
@@ -20,13 +19,21 @@ import java.nio.ByteBuffer;
             this.message = message;
         }
 
+        enum commandTypes{
+            GET_AMOUNT_OF_PRODUCT,
+            WRITE_OFF_PRODUCT,
+            ADD_PRODUCT,
+            ADD_GROUP_OF_PRODUCTS,
+            ADD_PRODUCT_TO_GROUP,
+            SET_PRICE
+        }
         public byte[] messageToPacket(){
             return ByteBuffer.allocate(this.getMessageLength())
                     .putInt(cType).
                             putInt(bUserId).put(message.getBytes()).array();
         }
         public int Length() throws Exception {
-            return myCipher.encrypt(this.messageToPacket()).length;
+            return Encryptor.encrypt(this.messageToPacket()).length;
         }
         public byte[] slpart(){
             return ByteBuffer.allocate(8).putInt(cType).putInt(bUserId).array();

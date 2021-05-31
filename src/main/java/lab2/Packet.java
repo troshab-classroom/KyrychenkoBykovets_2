@@ -14,17 +14,18 @@ public class Packet {
     public final static Byte BMagic =  0x13;
    // static int bPktId;
     Byte bSrc;
-    static Long bPktId;
+    static Long bPktId = 0L;
+    static long fPktId=0;
     Integer wLen;
     Short wCrc16;
     Message bMsq ;
     Short wCrc16_2;
 
 
-    public Packet(Byte bSrc,Long bPktId, Message bMsq ) {
+    public Packet(Byte bSrc, Message bMsq ) {
         this.bSrc = bSrc;
         this.bMsq = bMsq;
-        this.bPktId = bPktId++;
+        this.bPktId = fPktId++;
 
         wLen = bMsq.message.length();
 
@@ -38,7 +39,7 @@ public class Packet {
         wCrc16 = (CRC16.crc16(firstPart));
 
         byte[] secondPart1 =  (ByteBuffer.allocate( bMsq.getMessageLength()).put(bMsq.messageToPacket()).array());
-        byte[] secondPart =  (ByteBuffer.allocate( myCipher.encrypt(bMsq.messageToPacket()).length).put( myCipher.encrypt(bMsq.messageToPacket())).array()) ;
+        byte[] secondPart =  (ByteBuffer.allocate( Encryptor.encrypt(bMsq.messageToPacket()).length).put( Encryptor.encrypt(bMsq.messageToPacket())).array()) ;
         wCrc16_2 = CRC16.crc16(secondPart1);
         return  ByteBuffer.allocate( firstPart.length + 4 + secondPart.length)
                 .put(firstPart).putShort(wCrc16).put(secondPart).putShort(wCrc16_2).array();
@@ -63,7 +64,7 @@ public class Packet {
         byte[] messageBytes = new byte[encodedPacket.length-18];
         byteBuffer.get(messageBytes);
         byte[] secondPart1 = messageBytes;
-        byte[] secondPart=myCipher.decrypt(messageBytes);
+        byte[] secondPart= Decryptor.decrypt(messageBytes);
         ByteBuffer encodeMessage = byteBuffer.wrap(secondPart);
         bMsq.setcType(encodeMessage.getInt());
         bMsq.setbUserId(encodeMessage.getInt());
