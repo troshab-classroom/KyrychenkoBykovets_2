@@ -2,7 +2,7 @@ package lab2;
 
 public class Receiver {
 
-int k;
+int d;
     public void receiveMessage(){
 
     }
