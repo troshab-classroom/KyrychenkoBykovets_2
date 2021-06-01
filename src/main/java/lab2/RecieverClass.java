@@ -1,24 +1,22 @@
 package lab2;
 
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class RecieverClass implements Reciever, Runnable {
+    /*private final int poisonPill;*/
     private BlockingQueue<Packet> packetsAnswer;
     private BlockingQueue<Packet> packets;
-    public RecieverClass(BlockingQueue<Packet> packetsAnswer, BlockingQueue<Packet> packets ){
-
+    public RecieverClass(/*int poisonPill,*/ BlockingQueue<Packet> packetsAnswer, BlockingQueue<Packet> packets){
+        /*this.poisonPill = poisonPill;*/
         this.packets = packets;
         this.packetsAnswer = packetsAnswer;
     }
     //dd
     @Override
     public void recieveMessage() throws InterruptedException {
-
-       Packet  pack = packets.take();
+        Packet  pack = packets.take();
        Message message = new Message(pack.bMsq.cType, pack.bMsq.bUserId, "OK");
-       Packet packAnswer = new Packet(pack.bSrc,message);
+       Packet packAnswer = new Packet(pack.bSrc,message, pack.bPktId);
        packetsAnswer.put(packAnswer);
 
     }

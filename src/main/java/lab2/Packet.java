@@ -14,8 +14,8 @@ public class Packet {
     public final static Byte BMagic =  0x13;
    // static int bPktId;
     Byte bSrc;
-    static Long bPktId = 0L;
-    static long fPktId=0;
+     Long bPktId = 0L;
+   static long fPktId=0;
     Integer wLen;
     Short wCrc16;
     Message bMsq ;
@@ -26,6 +26,14 @@ public class Packet {
         this.bSrc = bSrc;
         this.bMsq = bMsq;
         this.bPktId = fPktId++;
+
+        wLen = bMsq.message.length();
+
+    }
+    public Packet(Byte bSrc, Message bMsq,  Long bPltId ) {
+        this.bSrc = bSrc;
+        this.bMsq = bMsq;
+        this.bPktId = bPltId;
 
         wLen = bMsq.message.length();
 

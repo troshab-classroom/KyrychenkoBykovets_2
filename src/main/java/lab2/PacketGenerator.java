@@ -1,12 +1,18 @@
 package lab2;
 
+import lombok.SneakyThrows;
+
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
 public class PacketGenerator implements Runnable {
     private BlockingQueue<byte[] > packets;
-    PacketGenerator(BlockingQueue<byte[] > packets){
+    private final byte[] poisonPill;
+    private final int poisonPillPerProducer;
+    PacketGenerator(BlockingQueue<byte[]> packets, byte[] poisonPill, int poisonPillPerProducer){
         this.packets = packets;
+        this.poisonPill = poisonPill;
+        this.poisonPillPerProducer = poisonPillPerProducer;
     }
     public static byte[] generate() throws Exception {
 
@@ -18,14 +24,19 @@ public class PacketGenerator implements Runnable {
     }
 
 
+    @SneakyThrows
     @Override
     public void run() {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 2; i++) {
             try {
                 packets.put(generate());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+        }
+        for (int j = 0; j < poisonPillPerProducer; j++) {
+                packets.put(poisonPill);
         }
     }
 }

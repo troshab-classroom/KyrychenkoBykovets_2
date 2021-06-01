@@ -1,6 +1,5 @@
 package lab2;
 
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
@@ -10,9 +9,14 @@ public class Encryptor implements Runnable{
 
     private BlockingQueue<Packet> packetsAnswer;
     private BlockingQueue<byte[]> encryptedPackets;
+    /*private final int poisonPill;
+    private final int poisonPillPerProducer;*/
 
-    public Encryptor(BlockingQueue<Packet> packetsAnswer){
+    public Encryptor(BlockingQueue<Packet> packetsAnswer, BlockingQueue<byte[]> encryptedPackets/*, int poisonPill, int poisonPillPerProducer*/){
         this.packetsAnswer = packetsAnswer;
+        this.encryptedPackets=encryptedPackets;
+        /*this.poisonPill = poisonPill;
+        this.poisonPillPerProducer = poisonPillPerProducer;*/
     }
     private static final String ALGO = "AES";
     private static final byte[] keyValue =
@@ -29,7 +33,6 @@ public class Encryptor implements Runnable{
     }
 
     public static byte[] encrypt(byte[] Data) throws Exception {
-
         Cipher c = Cipher.getInstance(ALGO);
         c.init(Cipher.ENCRYPT_MODE, key);
         byte[] encVal = c.doFinal(Data);

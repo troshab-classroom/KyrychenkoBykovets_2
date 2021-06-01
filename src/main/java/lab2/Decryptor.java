@@ -1,12 +1,19 @@
 package lab2;
 
 import javax.crypto.Cipher;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 public class Decryptor implements Runnable{
-    private BlockingQueue<byte[] > packetsToDecrypt;
-    public Decryptor(BlockingQueue<byte[] > packetsToDecrypt){
-this.packetsToDecrypt = packetsToDecrypt;
+    private final byte[] poisonPill;
+   /* private final byte[] poisonPillPerProducer;*/
+    private BlockingQueue<byte[]> packetsToDecrypt;
+    private BlockingQueue<Packet> decryptedPackets;
+    public Decryptor(byte[] poisonPill/*, byte[] poisonPillPerProducer, */,BlockingQueue<byte[]> packetsToDecrypt, BlockingQueue<Packet> decryptedPackets){
+        this.poisonPill = poisonPill;
+       /* this.poisonPillPerProducer = poisonPillPerProducer;*/
+        this.packetsToDecrypt = packetsToDecrypt;
+this.decryptedPackets=decryptedPackets;
 
     }
     public static byte[] decrypt(byte[] encryptedData) throws Exception {
@@ -21,12 +28,14 @@ this.packetsToDecrypt = packetsToDecrypt;
     public void run() {
         while(true) {
             try {
-                Decryptor.decrypt(packetsToDecrypt.take());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                byte[] arr =  packetsToDecrypt.take();
+                if (Arrays.equals(arr, poisonPill)) return;
+                decryptedPackets.put(new Packet(arr));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+        }
         }
     }
-}
+
