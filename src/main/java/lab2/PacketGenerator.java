@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
 public class PacketGenerator implements Runnable {
+    public static  int l=0;
     private BlockingQueue<byte[] > packets;
     private final byte[] poisonPill;
     private final int poisonPillPerProducer;
@@ -27,7 +28,8 @@ public class PacketGenerator implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        for (int i = 0; i < 2; i++) {
+
+        for (int i = 0; i < 4; i++) {
             try {
                 packets.put(generate());
             } catch (Exception e) {
@@ -37,6 +39,7 @@ public class PacketGenerator implements Runnable {
         }
         for (int j = 0; j < poisonPillPerProducer; j++) {
                 packets.put(poisonPill);
+
         }
     }
 }

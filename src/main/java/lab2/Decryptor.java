@@ -5,13 +5,14 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 public class Decryptor implements Runnable{
+    public static  int l=0;
     private final byte[] poisonPill;
-   /* private final byte[] poisonPillPerProducer;*/
+    private int poisonPillPerProducer;
     private BlockingQueue<byte[]> packetsToDecrypt;
     private BlockingQueue<Packet> decryptedPackets;
-    public Decryptor(byte[] poisonPill/*, byte[] poisonPillPerProducer, */,BlockingQueue<byte[]> packetsToDecrypt, BlockingQueue<Packet> decryptedPackets){
+    public Decryptor(byte[] poisonPill,int poisonPillPerProducer,BlockingQueue<byte[]> packetsToDecrypt, BlockingQueue<Packet> decryptedPackets){
         this.poisonPill = poisonPill;
-       /* this.poisonPillPerProducer = poisonPillPerProducer;*/
+        this.poisonPillPerProducer = poisonPillPerProducer;
         this.packetsToDecrypt = packetsToDecrypt;
 this.decryptedPackets=decryptedPackets;
 
@@ -27,10 +28,15 @@ this.decryptedPackets=decryptedPackets;
     @Override
     public void run() {
         while(true) {
+
             try {
                 byte[] arr =  packetsToDecrypt.take();
-                if (Arrays.equals(arr, poisonPill)) return;
-                decryptedPackets.put(new Packet(arr));
+                if (Arrays.equals(arr, poisonPill)) {/*System.out.println("End");*/return;}
+                    //Thread.currentThread().interrupt();
+
+                    decryptedPackets.put(new Packet(arr));
+                /*l++;
+                System.out.println("Decrypted packet "+l+" thread-"+ Thread.currentThread().getId());*/
             } catch (Exception e) {
                 e.printStackTrace();
             }

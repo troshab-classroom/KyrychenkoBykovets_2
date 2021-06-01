@@ -6,17 +6,20 @@ import java.security.Key;
 import java.util.concurrent.BlockingQueue;
 
 public class Encryptor implements Runnable{
-
+int amount=0;
+    public static  int l=0;
     private BlockingQueue<Packet> packetsAnswer;
     private BlockingQueue<byte[]> encryptedPackets;
-    /*private final int poisonPill;
-    private final int poisonPillPerProducer;*/
+    private final byte[] poisonPill;
+    private final int poisonPillPerProducer;
 
-    public Encryptor(BlockingQueue<Packet> packetsAnswer, BlockingQueue<byte[]> encryptedPackets/*, int poisonPill, int poisonPillPerProducer*/){
+    public Encryptor(BlockingQueue<Packet> packetsAnswer, BlockingQueue<byte[]> encryptedPackets, byte[] poisonPill, /*, int poisonPill, int poisonPillPerProducer*/int poisonPillPerProducer){
         this.packetsAnswer = packetsAnswer;
         this.encryptedPackets=encryptedPackets;
+        this.poisonPill=poisonPill;
         /*this.poisonPill = poisonPill;
         this.poisonPillPerProducer = poisonPillPerProducer;*/
+        this.poisonPillPerProducer = poisonPillPerProducer;
     }
     private static final String ALGO = "AES";
     private static final byte[] keyValue =
@@ -54,10 +57,18 @@ public class Encryptor implements Runnable{
 
     @Override
     public void run() {
+
         while(true) {
             try {
-               Packet pack =  packetsAnswer.take();
-                encryptedPackets.put(pack.encodePackage());
+                    Packet pack = packetsAnswer.take();
+                    encryptedPackets.put(pack.encodePackage());
+                /*l++;
+                System.out.println("Encrypted packet "+l);*/
+                /*amount++;
+                if(amount==4) {
+                for (int j = 0; j < poisonPillPerProducer; j++) {
+                    encryptedPackets.put(poisonPill);
+                }}*/
             } catch (Exception e) {
                 e.printStackTrace();
             }
