@@ -3,7 +3,7 @@ package lab2;
 import javax.crypto.Cipher;
 import java.util.concurrent.BlockingQueue;
 
-public class Decryptor {
+public class Decryptor implements Runnable{
     private BlockingQueue<byte[] > packetsToDecrypt;
     public Decryptor(BlockingQueue<byte[] > packetsToDecrypt){
 this.packetsToDecrypt = packetsToDecrypt;
@@ -17,4 +17,16 @@ this.packetsToDecrypt = packetsToDecrypt;
         return decValue;
     }
 
+    @Override
+    public void run() {
+        while(true) {
+            try {
+                Decryptor.decrypt(packetsToDecrypt.take());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
