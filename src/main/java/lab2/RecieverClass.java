@@ -4,7 +4,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class RecieverClass implements Reciever, Runnable {
     /*private final int poisonPill;*/
-    public static int l;
+    public int l;
     private BlockingQueue<Packet> packetsAnswer;
     private BlockingQueue<Packet> packets;
     public RecieverClass(/*int poisonPill,*/ BlockingQueue<Packet> packetsAnswer, BlockingQueue<Packet> packets){
@@ -12,6 +12,7 @@ public class RecieverClass implements Reciever, Runnable {
         this.packets = packets;
         this.packetsAnswer = packetsAnswer;
     }
+
     //dd
     @Override
     public void recieveMessage() throws InterruptedException {
@@ -28,7 +29,7 @@ l++;
         while(true) {
             try {
                 recieveMessage();
-
+                l++;
             } catch (InterruptedException e) {
                Thread.currentThread().interrupt();
             }

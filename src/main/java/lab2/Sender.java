@@ -17,6 +17,7 @@ public class Sender implements  Runnable{
     }
     public String CheckIfSended() throws Exception {
         Packet packet = new Packet(encryptedPackets.take());
+        r++;
         return packet.bMsq.message;
     }
 
