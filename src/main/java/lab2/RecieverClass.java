@@ -12,6 +12,7 @@ public class RecieverClass implements Reciever, Runnable {
         this.packets = packets;
         this.packetsAnswer = packetsAnswer;
     }
+    //dd
     @Override
     public void recieveMessage() throws InterruptedException {
 
