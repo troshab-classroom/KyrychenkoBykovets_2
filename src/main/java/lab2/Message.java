@@ -8,7 +8,7 @@ import lombok.Data;
 
         Integer cType;
         Integer bUserId;
-        String message;
+        public String message;
 
 
         public Message(){

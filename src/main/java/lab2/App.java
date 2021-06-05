@@ -16,9 +16,10 @@ public class App {
         byte[] poisonPillb = "EXIT".getBytes(StandardCharsets.UTF_8);
         System.out.println(Arrays.toString(poisonPillb));*/
         int BOUND = 10;
-        int N_PRODUCERS = 3;
+        int N_PRODUCERS = 4;
         int N_CONSUMERS = Runtime.getRuntime().availableProcessors();
-        byte[] poisonPill = new byte[]{0,1};
+        Packet stop=new Packet((byte)1, new Message(2,3,"End of thread"));
+        byte[] poisonPill = stop.encodePackage();
         int poisonPillPerProducer = 1;
         int mod = N_CONSUMERS % N_PRODUCERS;
 
@@ -34,13 +35,14 @@ public class App {
             new Thread(new Decryptor( poisonPill,poisonPillPerProducer, packetsToDecrypt, packets)).start();
         }
         for (int i = 1; i < N_PRODUCERS; i++) {
-            new Thread(new RecieverClass(packetsAnswer, packets)).start();
+            new Thread(new RecieverClass(packetsAnswer, packets, stop)).start();
+        }
+
+        for (int i = 1; i < N_PRODUCERS; i++) {
+            new Thread(new Encryptor(packetsAnswer, encryptedPackets, poisonPill, stop, poisonPillPerProducer)).start();
         }
         for (int i = 1; i < N_PRODUCERS; i++) {
-            new Thread(new Encryptor(packetsAnswer, encryptedPackets, poisonPill, poisonPillPerProducer)).start();
-        }
-        for (int i = 1; i < N_PRODUCERS; i++) {
-            new Thread(new Sender(encryptedPackets, poisonPill)).start();
+            new Thread(new Sender(encryptedPackets, stop)).start();
         }
 
     }

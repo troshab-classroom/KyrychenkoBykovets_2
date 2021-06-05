@@ -1,42 +1,35 @@
 package lab2;
 
-import java.util.Arrays;
+import lombok.SneakyThrows;
+
 import java.util.concurrent.BlockingQueue;
 
 public class Sender implements  Runnable{
 
     private BlockingQueue<byte[]> encryptedPackets;
-    /*private final int poisonPillPerProducer;*/
-    static int r;
-    private final byte[] poisonPill;
-    public Sender(BlockingQueue<byte[]> encryptedPackets,/*, int poisonPillPerProducer, int poisonPill*/byte[] poisonPill){
+
+    private Packet poisonPill;
+    public Sender(BlockingQueue<byte[]> encryptedPackets,Packet poisonPill){
         this.encryptedPackets = encryptedPackets;
-        /*this.poisonPillPerProducer = poisonPillPerProducer;
-        this.poisonPill = poisonPill;*/
         this.poisonPill = poisonPill;
     }
-    public String CheckIfSended() throws Exception {
-        Packet packet = new Packet(encryptedPackets.take());
-        r++;
+    public String CheckIfSended(Packet packet) {
+
         return packet.bMsq.message;
     }
 
+    @SneakyThrows
     @Override
     public void run() {
-//int r=t;
-        while (true) {
+        Packet packet = new Packet(encryptedPackets.take());
+        while (!packet.equals(poisonPill)) {
             try {
-               // if (Arrays.equals(encryptedPackets.take(), poisonPill)) { System.out.println("Interrupteed");Thread.currentThread().interrupt();}
-                /*if (Arrays.equals(encryptedPackets.take(), poisonPill)) {Thread.currentThread().interrupt();}
-                else*/
-                System.out.println(CheckIfSended());
-                 r++;
-                //if (Arrays.equals(encryptedPackets.take(), poisonPill)) System.out.println("Eeeeeend");
-                /*l++;
-                System.out.println("Sended packet "+l);*/
+                System.out.println(CheckIfSended(packet));
+                packet = new Packet(encryptedPackets.take());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    Thread.currentThread().interrupt();
     }
 }

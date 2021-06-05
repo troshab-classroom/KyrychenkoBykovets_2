@@ -13,8 +13,8 @@ public class Packet {
 
     public final static Byte BMagic =  0x13;
    // static int bPktId;
-    Byte bSrc;
-     Long bPktId = 0L;
+   public Byte bSrc;
+     public Long bPktId = 0L;
    static long fPktId=0;
     Integer wLen;
     Short wCrc16;

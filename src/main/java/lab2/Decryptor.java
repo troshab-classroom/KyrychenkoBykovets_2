@@ -1,5 +1,7 @@
 package lab2;
 
+import lombok.SneakyThrows;
+
 import javax.crypto.Cipher;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
@@ -25,23 +27,20 @@ this.decryptedPackets=decryptedPackets;
         return decValue;
     }
 
+    @SneakyThrows
     @Override
     public void run() {
-        while(true) {
-
+        byte[] arr =  packetsToDecrypt.take();
+        while(!Arrays.equals(arr, poisonPill)) {
             try {
-                byte[] arr =  packetsToDecrypt.take();
-                if (Arrays.equals(arr, poisonPill)) {/*System.out.println("End");*/return;}
-                    //Thread.currentThread().interrupt();
-
-                    decryptedPackets.put(new Packet(arr));
-                /*l++;
-                System.out.println("Decrypted packet "+l+" thread-"+ Thread.currentThread().getId());*/
+                decryptedPackets.put(new Packet(arr));
+                arr =  packetsToDecrypt.take();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
+        decryptedPackets.put(new Packet(poisonPill));
+        Thread.currentThread().interrupt();
         }
     }
 

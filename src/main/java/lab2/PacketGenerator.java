@@ -39,7 +39,9 @@ public class PacketGenerator implements Runnable {
         }
         for (int j = 0; j < poisonPillPerProducer; j++) {
                 packets.put(poisonPill);
-
         }
+        Thread.currentThread().interrupt();
+
+
     }
 }

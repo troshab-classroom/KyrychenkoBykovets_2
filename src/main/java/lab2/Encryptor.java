@@ -1,24 +1,26 @@
 package lab2;
 
+import lombok.SneakyThrows;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.concurrent.BlockingQueue;
 
 public class Encryptor implements Runnable{
-int amount=0;
+
     public static  int l=0;
     private BlockingQueue<Packet> packetsAnswer;
     private BlockingQueue<byte[]> encryptedPackets;
     private final byte[] poisonPill;
+    private final Packet poisonPill2;
     private final int poisonPillPerProducer;
 
-    public Encryptor(BlockingQueue<Packet> packetsAnswer, BlockingQueue<byte[]> encryptedPackets, byte[] poisonPill, /*, int poisonPill, int poisonPillPerProducer*/int poisonPillPerProducer){
+    public Encryptor(BlockingQueue<Packet> packetsAnswer, BlockingQueue<byte[]> encryptedPackets, byte[] poisonPill, Packet poisonPill2, int poisonPillPerProducer){
         this.packetsAnswer = packetsAnswer;
         this.encryptedPackets=encryptedPackets;
         this.poisonPill=poisonPill;
-        /*this.poisonPill = poisonPill;
-        this.poisonPillPerProducer = poisonPillPerProducer;*/
+        this.poisonPill2 = poisonPill2;
         this.poisonPillPerProducer = poisonPillPerProducer;
     }
     private static final String ALGO = "AES";
@@ -39,7 +41,6 @@ int amount=0;
         Cipher c = Cipher.getInstance(ALGO);
         c.init(Cipher.ENCRYPT_MODE, key);
         byte[] encVal = c.doFinal(Data);
-        //String encryptedValue = new BASE64Encoder().encode(encVal);
         return encVal;
     }
 
@@ -55,23 +56,19 @@ int amount=0;
         return key;
    }
 
+    @SneakyThrows
     @Override
     public void run() {
-
-        while(true) {
+        Packet pack = packetsAnswer.take();
+        while(!pack.equals(poisonPill2)) {
             try {
-                    Packet pack = packetsAnswer.take();
-                    encryptedPackets.put(pack.encodePackage());
-                /*l++;
-                System.out.println("Encrypted packet "+l);*/
-                /*amount++;
-                if(amount==4) {
-                for (int j = 0; j < poisonPillPerProducer; j++) {
-                    encryptedPackets.put(poisonPill);
-                }}*/
+                encryptedPackets.put(pack.encodePackage());
+                pack = packetsAnswer.take();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        encryptedPackets.put(poisonPill);
+        Thread.currentThread().interrupt();
     }
 }
