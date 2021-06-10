@@ -84,7 +84,7 @@ public class DBCommands {
             throw new RuntimeException("Trouble",e);
         }
     }
-    private void updatePrice(String name_product,  double quantity){
+    public void updatePrice(String name_product,  double quantity){
         try{
 
             System.out.println();
@@ -104,7 +104,7 @@ public class DBCommands {
         }
 
     }
-    private void updateAmount(String name_product,  double quantity){
+    public void updateAmount(String name_product,  double quantity){
         try{
 
             System.out.println();

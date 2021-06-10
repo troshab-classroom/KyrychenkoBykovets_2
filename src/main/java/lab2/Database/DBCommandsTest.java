@@ -54,5 +54,16 @@ class DBCommandsTest {
         assertEquals(3, res.size() );
         comm.DeleteAll();
     }
-
+    @Test
+    void testUpdate(){
+        DBCommands comm=new DBCommands();
+        comm.Create("Test4");
+        comm.DeleteAll();
+        comm.Insert(new Product("pineapple", 45, 86));
+        comm.Insert(new Product("meat", 123, 23));
+        comm.updatePrice("meat", 789);
+        List<Product> res=comm.listByPrice("=789");
+        assertEquals(1, res.size() );
+        comm.DeleteAll();
+    }
 }
