@@ -10,7 +10,7 @@ import java.util.List;
 public class DBCommands {
 
     private Connection connStr;
-    public void Create(String name)  {
+    public void Create()  {
         try{
              Class.forName("org.sqlite.JDBC");
             connStr = DriverManager.getConnection("jdbc:sqlite:inmemory");

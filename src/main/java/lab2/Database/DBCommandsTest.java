@@ -10,7 +10,7 @@ class DBCommandsTest {
 @Test
     void testInsert(){
     DBCommands comm=new DBCommands();
-    comm.Create("Test");
+    comm.Create();
     int size=comm.Read().size();
     Product prod=comm.Insert(new Product("pineapple", 45, 86));
     assertEquals(size,comm.Read().size()-1 );
@@ -18,7 +18,7 @@ class DBCommandsTest {
 @Test
     void testDelete(){
         DBCommands comm=new DBCommands();
-        comm.Create("Test2");
+        comm.Create();
         comm.DeleteAll();
         Product prod=comm.Insert(new Product("pineapple", 45, 86));
     comm.Insert(new Product("meat", 123, 23));
@@ -30,7 +30,7 @@ class DBCommandsTest {
     @Test
     void testCriteria(){
         DBCommands comm=new DBCommands();
-        comm.Create("Test3");
+        comm.Create();
         comm.DeleteAll();
        comm.Insert(new Product("pineapple", 45, 86));
         comm.Insert(new Product("meat", 123, 23));
@@ -43,7 +43,7 @@ class DBCommandsTest {
     @Test
     void testCriteriaPrice(){
         DBCommands comm=new DBCommands();
-        comm.Create("Test3");
+        comm.Create();
         comm.DeleteAll();
         comm.Insert(new Product("pineapple", 45, 86));
         comm.Insert(new Product("meat", 123, 23));
@@ -55,15 +55,29 @@ class DBCommandsTest {
         comm.DeleteAll();
     }
     @Test
-    void testUpdate(){
+    void testUpdatePrice(){
         DBCommands comm=new DBCommands();
-        comm.Create("Test4");
+        comm.Create();
         comm.DeleteAll();
         comm.Insert(new Product("pineapple", 45, 86));
         comm.Insert(new Product("meat", 123, 23));
         comm.updatePrice("meat", 789);
         List<Product> res=comm.listByPrice("=789");
         assertEquals(1, res.size() );
+        comm.DeleteAll();
+    }
+@Test
+    void testUpdateAmount(){
+        DBCommands comm=new DBCommands();
+        comm.Create();
+        comm.DeleteAll();
+        comm.Insert(new Product("pineapple", 45, 86));
+        comm.Insert(new Product("meat", 123, 23));
+        comm.Insert(new Product("milk", 23, 90));
+        comm.Insert(new Product("juice", 10, 23));
+        comm.updateAmount("milk", 20);
+        List<Product> res=comm.listByName("milk");
+        assertEquals(res.get(0).getAmount(), 20 );
         comm.DeleteAll();
     }
 }
