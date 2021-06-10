@@ -14,7 +14,7 @@ public class DBCommands {
         try{
              Class.forName("org.sqlite.JDBC");
             connStr = DriverManager.getConnection("jdbc:sqlite:inmemory");
-            PreparedStatement st = connStr.prepareStatement("CREATE TABLE IF NOT EXISTS 'product' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text, 'price' double, 'amount' int);");
+            PreparedStatement st = connStr.prepareStatement("CREATE TABLE IF NOT EXISTS 'product' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text, 'price' double, 'amount' double );");
             st.executeUpdate();
         }catch(ClassNotFoundException e){
             System.out.println("JDBC not found");
