@@ -16,6 +16,8 @@ public class DBCommands {
             connStr = DriverManager.getConnection("jdbc:sqlite:inmemory");
             PreparedStatement st = connStr.prepareStatement("CREATE TABLE IF NOT EXISTS 'product' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text, 'price' double, 'amount' double );");
             st.executeUpdate();
+            st = connStr.prepareStatement("CREATE TABLE IF NOT EXISTS 'user' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text unique, 'password' text);");
+            st.executeUpdate();
         }catch(ClassNotFoundException e){
             System.out.println("JDBC not found");
             e.printStackTrace();
@@ -42,6 +44,43 @@ public class DBCommands {
             e.printStackTrace();
         }
         return product;
+    }
+    public User InsertUser(User user){
+        try{
+            PreparedStatement statement=connStr.prepareStatement("INSERT INTO user(login,password) VALUES (?,?)");
+            statement.setString(1, user.getLogin());
+            statement.setString(2, user.getPassword());
+
+            statement.executeUpdate();
+            ResultSet resSet=statement.getGeneratedKeys();
+            user.setId(resSet.getInt("last_insert_rowid()"));
+            // statement.close();
+
+        }catch(SQLException e){
+            System.out.println("SQL");
+            e.printStackTrace();
+        }
+        return user;
+    }
+    public User getUserByLogin(String login) throws SQLException {
+
+        try {
+            PreparedStatement statement = connStr.prepareStatement("SELECT * FROM user WHERE login =  ?");
+            statement.setString(1, login);
+            ResultSet resSet = statement.executeQuery();
+
+            while (resSet.next()) {
+                return new User(resSet.getInt(1),resSet.getString(2), resSet.getString(3));
+
+
+            }
+            resSet.close();
+        } catch (SQLException e){
+            System.out.println("SQL");
+            e.printStackTrace();
+        }
+       return null;
+
     }
     public List<Product> Read(){
         List<Product> productList = new ArrayList<>();
@@ -162,6 +201,14 @@ public class DBCommands {
             e.printStackTrace();
         }
         return productList;
+    }
+    public static void main(String [] args) throws SQLException {
+        DBCommands comm=new DBCommands();
+        comm.Create();
+        //comm.InsertUser(new User("login2","password"));
+        System.out.println(comm.getUserByLogin("login2"));
+
+
     }
 
 
