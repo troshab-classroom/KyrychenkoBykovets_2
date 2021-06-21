@@ -21,121 +21,193 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 public class HTTP_Server {
-
-
-
     static Key signingKey;
-    public static int getPort() {
-        return port;
-    }
-
-    public static void setPort(int port) {
-        HTTP_Server.port = port;
-    }
 
     private static int port = 1234;
-    public static void main(String [] args) throws IOException   {
+    public static void main(String [] args) throws IOException {
         DBCommands comm = new DBCommands();
         comm.Create();
-       // comm.InsertUser(new User("login3","password"));
-       // comm.InsertUser(new User("login4","password"));
-        String jwt = createJWT("login");
-        System.out.println(findUserByJWT(jwt));
+        Product prod = new Product("meet", 23, 45);
+        comm.Insert(prod);
+        System.out.println(prod.getId());
+        // comm.InsertUser(new User("login5","5f4dcc3b5aa765d61d8327deb882cf99"));
         ObjectMapper myMapper = new ObjectMapper();
-        ///byte[] response = "{\"login\": \"ok\",\"password\" : \"password\" }".getBytes(StandardCharsets.UTF_8);
-        //User user = myMapper.readValue(response, User.class);
-       // System.out.println(user);
-        HttpServer server = HttpServer.create(new InetSocketAddress(port),0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.start();
         server.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-                if(exchange.getRequestMethod().equals("GET")) {
+                if (exchange.getRequestMethod().equals("GET")) {
                     byte[] response = "{\"status\": \"ok\"}".getBytes(StandardCharsets.UTF_8);
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, response.length);
                     exchange.getResponseBody().write(response);
                     exchange.close();
-                }
-                else{
+                } else {
                     exchange.sendResponseHeaders(405, 0);
                 }
             }
         });
-        server.createContext("/login",exchange -> {
-            if(exchange.getRequestMethod().equals("POST")){
-               // byte[] response = "{\"status\": \"ok\"}".getBytes(StandardCharsets.UTF_8);
-                byte[] response = "{\"login\": \"ok\",\"password\" : \"password\" }".getBytes(StandardCharsets.UTF_8);
-               User user =  myMapper.readValue(response, User.class);
+        server.createContext("/login", exchange -> {
+            if (exchange.getRequestMethod().equals("POST")) {
+                User user = myMapper.readValue(exchange.getRequestBody(), User.class);
                 try {
                     User find = comm.getUserByLogin(user.getLogin());
-                    if(find!=null){
-                     if (find.getPassword().equals(user.getPassword())){
-                      exchange.getResponseHeaders().set("Authorization", createJWT(find.getLogin()));
-                      exchange.sendResponseHeaders(200,0);
-                   //   String jwt = createJWT(find.getLogin());
-                     //System.out.println(findUserByJWT(jwt));
-                     }
-                     else   exchange.sendResponseHeaders(401,0);
+                    if (find != null) {
+                        String ps=user.getPassword();
+                        System.out.println(hashMD(ps));
+                        if (find.getPassword().equals(hashMD(ps))) {
+                            exchange.getResponseHeaders().set("Authorization", createJWT(find.getLogin()));
+                            exchange.sendResponseHeaders(200, 0);
+                        } else exchange.sendResponseHeaders(401, 0);
 
-                    }
-                    else{
+                    } else {
 
-                        exchange.sendResponseHeaders(401,0);
+                        exchange.sendResponseHeaders(401, 0);
                     }
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
-            }
-            else{
+            } else {
                 exchange.sendResponseHeaders(405, 0);
             }
         });
 
 
-        HttpContext context = server.createContext("/api/good", new HttpHandler() {
+        HttpContext context = server.createContext("/api/good/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
                 System.out.println(exchange.getPrincipal());
-                if(exchange.getRequestMethod().equals("GET")) {
+                if (exchange.getRequestMethod().equals("GET")) {
+                    String s = String.valueOf(exchange.getRequestURI());
+                    int id = 0;
+                    Product responseProd = null;
+                    try {
+                        id = Integer.parseInt(s.substring("/api/good/".length(), s.length()));
+                        //System.out.println(id);
+                    } catch (Exception ex) {
+                        exchange.sendResponseHeaders(404, 0);
+                        ex.printStackTrace();
 
-                    Product prod = new Product("milk",10,10);
+                    }
+                    try {
+                        responseProd = comm.getProductByID(id);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    if (responseProd != null) {
 
-                    byte[] response = myMapper.writeValueAsBytes(prod);
-                    exchange.getResponseHeaders().set("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(200, response.length);
-                    exchange.getResponseBody().write(response);
-                    exchange.close();
+
+                        byte[] response = myMapper.writeValueAsBytes(responseProd);
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.sendResponseHeaders(200, response.length);
+                        exchange.getResponseBody().write(response);
+                        exchange.close();
+                    }
+                    else{
+                        exchange.sendResponseHeaders(404, 0);
+                    }
+                } else if (exchange.getRequestMethod().equals("DELETE")) {
+                    String s = String.valueOf(exchange.getRequestURI());
+                    int id = 0;
+                    Product responseProd = null;
+                    try {
+                        id = Integer.parseInt(s.substring("/api/good/".length(), s.length()));
+                    } catch (Exception ex) {
+                        exchange.sendResponseHeaders(404, 0);
+                        ex.printStackTrace();
+                    }
+                    try {
+                        responseProd = comm.DeleteId(id);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    if (responseProd != null) {
+                        byte[] response = "{\"status\": \"No Content\"}".getBytes(StandardCharsets.UTF_8);
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.sendResponseHeaders(204, response.length);
+                        exchange.getResponseBody().write(response);
+                        exchange.close();
+                    } else {
+                        exchange.sendResponseHeaders(404, 0);
+                    }
+                } else if (exchange.getRequestMethod().equals("POST")) {
+
+                    String s = String.valueOf(exchange.getRequestURI());
+                    int id = 0;
+                    Product productReceived = myMapper.readValue(exchange.getRequestBody(), Product.class);
+                    if (productReceived.getPrice() < 0 || productReceived.getAmount() < 0)
+                        exchange.sendResponseHeaders(409, 0);
+
+                    Product responseProd = productReceived;
+                    try {
+                        id = Integer.parseInt(s.substring("/api/good/".length(), s.length()));
+                    } catch (Exception ex) {
+                        exchange.sendResponseHeaders(404, 0);
+                        ex.printStackTrace();
+                    }
+                    try {
+                        responseProd = comm.updateProduct(id, productReceived);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    if (responseProd != null) {
+                        byte[] response = "{\"status\": \"No Content\"}".getBytes(StandardCharsets.UTF_8);
+                        exchange.getResponseHeaders().set("Content-Type", "application/json");
+                        exchange.sendResponseHeaders(204, response.length);
+                        exchange.getResponseBody().write(response);
+                        exchange.close();
+                    } else {
+                        exchange.sendResponseHeaders(404, 0);
+                    }
                 }
-                else{
+                if (exchange.getRequestMethod().equals("PUT")) {
+
+                    Product product = myMapper.readValue(exchange.getRequestBody(), Product.class);
+                    if (product != null) {
+                        try {
+                            if (product.getAmount() <= 0 || product.getPrice() <= 0) {
+                                exchange.sendResponseHeaders(409, 0);
+                            }
+                            Product prod = comm.Insert(product);
+                            exchange.getResponseHeaders().set("Content-Type", "application/json");
+                            exchange.sendResponseHeaders(201, prod.getId().toString().getBytes().length);
+                            exchange.getResponseBody().write(prod.getId().toString().getBytes());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            exchange.sendResponseHeaders(409, 0);
+                        }
+
+                    }
+                    exchange.sendResponseHeaders(409, 0);
+                } else {
                     exchange.sendResponseHeaders(404, 0);
                 }
             }
         });
+
+
         context.setAuthenticator(new Authenticator() {
             @Override
             public Result authenticate(HttpExchange exch) {
-               String jwt =  exch.getRequestHeaders().getFirst("Authorization");
-               if(jwt!=null){
+                String jwt = exch.getRequestHeaders().getFirst("Authorization");
+                if (jwt != null) {
 
-                   String login = findUserByJWT(jwt);
-                   try {
-                       User user =  comm.getUserByLogin(login);
-                       if(user!=null){
-                       return new Success(new HttpPrincipal(login,"user"));
-
-                       }
-
-                           return new Failure(403);
-                   } catch (SQLException throwables) {
-                       throwables.printStackTrace();
-                   }
+                    String login = findUserByJWT(jwt);
+                    try {
+                        User user = comm.getUserByLogin(login);
+                        if (user != null) {
+                            return new Success(new HttpPrincipal(login, "user"));
+                        }
+                        return new Failure(403);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
 
 
-               }
-               System.out.println("kk");
-             //   return new Failure(403);
-                return null;
+                }
+                System.out.println("kk");
+                return new Failure(403);
             }
         });
 
@@ -145,10 +217,8 @@ public class HTTP_Server {
     private static String createJWT(String login) {
 
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-
         byte[] apiKeySecretBytes = "secretlongbesthowruimfinetahks".getBytes();
         signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
@@ -158,21 +228,23 @@ public class HTTP_Server {
                 .setExpiration(new Date(now.getTime()+ TimeUnit.HOURS.toMillis(14)))
                 .setSubject(login)
                 .signWith(signatureAlgorithm, signingKey);
-
-
-
         return builder.compact();
     }
+    public static String hashMD(String md5) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        return null;
+    }
     private static String  findUserByJWT(String jwt) {
-
-        //This line will throw an exception if it is not a signed JWS (as expected)
-        Claims claims = Jwts.parser()
-                .setSigningKey(signingKey)
-                .parseClaimsJws(jwt).getBody();
-      //  System.out.println("ID: " + claims.getId());
-     //   System.out.println("Subject: " + claims.getSubject());
-     //   System.out.println("Issuer: " + claims.getIssuer());
-       // System.out.println("Expiration: " + claims.getExpiration());
+        Claims claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(jwt).getBody();
         return claims.getSubject();
     }
 

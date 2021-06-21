@@ -10,6 +10,7 @@
         <module name="KyrychenkoBykovets_4" />
         <module name="KyrychenkoBykovets_2" />
         <module name="client2" />
+        <module name="KyrychenkoBykovets_21" />
       </profile>
     </annotationProcessing>
   </component>

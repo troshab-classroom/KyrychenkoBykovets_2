@@ -61,7 +61,7 @@ class DBCommandsTest {
         comm.DeleteAll();
         comm.Insert(new Product("pineapple", 45, 86));
         comm.Insert(new Product("meat", 123, 23));
-        comm.updatePrice("meat", 789);
+        //comm.updatePrice("meat", 789);
         List<Product> res=comm.listByPrice("=789");
         assertEquals(1, res.size() );
         comm.DeleteAll();
@@ -75,7 +75,7 @@ class DBCommandsTest {
         comm.Insert(new Product("meat", 123, 23));
         comm.Insert(new Product("milk", 23, 90));
         comm.Insert(new Product("juice", 10, 23));
-        comm.updateAmount("milk", 20);
+       // comm.updateAmount("milk", 20);
         List<Product> res=comm.listByName("milk");
         assertEquals(res.get(0).getAmount(), 20 );
         comm.DeleteAll();

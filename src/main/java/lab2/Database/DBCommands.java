@@ -62,6 +62,27 @@ public class DBCommands {
         }
         return user;
     }
+    public Product getProductByID(Integer id) throws SQLException {
+
+        try {
+            PreparedStatement statement = connStr.prepareStatement("SELECT * FROM product WHERE id = ?");
+            statement.setInt(1, id);
+            ResultSet resSet = statement.executeQuery();
+
+            while (resSet.next()) {
+                System.out.println("jjjdkfd");
+                return new Product(resSet.getInt(1),resSet.getString(2), resSet.getDouble(3), resSet.getDouble(3));
+
+
+            }
+            resSet.close();
+        } catch (SQLException e){
+            System.out.println("SQL");
+            e.printStackTrace();
+        }
+        return null;
+
+    }
     public User getUserByLogin(String login) throws SQLException {
 
         try {
@@ -80,6 +101,24 @@ public class DBCommands {
             e.printStackTrace();
         }
        return null;
+
+    }
+    public Product getProdById(int id) throws SQLException {
+
+        try {
+            PreparedStatement statement = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+            statement.setInt(1, id);
+            ResultSet resSet = statement.executeQuery();
+
+            while (resSet.next()) {
+                return new Product(resSet.getInt(1),resSet.getString(2),resSet.getDouble(3), resSet.getDouble(4));
+            }
+            resSet.close();
+        } catch (SQLException e){
+            System.out.println("SQL");
+            e.printStackTrace();
+        }
+        return null;
 
     }
     public List<Product> Read(){
@@ -113,6 +152,21 @@ public class DBCommands {
             throw new RuntimeException("Trouble",e);
         }
     }
+    public Product DeleteId(int id) throws SQLException {
+        PreparedStatement statement2 = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+        statement2.setInt(1, id);
+        ResultSet resSet = statement2.executeQuery();
+ Product res=null;
+        while (resSet.next()) {
+            res= new Product(resSet.getString(1),resSet.getDouble(2), resSet.getDouble(3));
+        }
+        resSet.close();
+
+        PreparedStatement statement = connStr.prepareStatement("DELETE FROM product WHERE id=?");
+            statement.setInt(1, id);
+            statement.executeUpdate();
+return res;
+    }
     public void DeleteAll(){
         try {
             Statement st=connStr.createStatement();
@@ -123,46 +177,79 @@ public class DBCommands {
             throw new RuntimeException("Trouble",e);
         }
     }
-    public void updatePrice(String name_product,  double quantity){
-        try{
+    public Product updateProduct(int id, Product product) throws SQLException {
+        PreparedStatement statement2 = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+        statement2.setInt(1, id);
+        ResultSet resSet = statement2.executeQuery();
+        Product res=null;
+        while (resSet.next()) {
+            res= new Product(resSet.getString(1),resSet.getDouble(2), resSet.getDouble(3));
+        }
+        resSet.close();
+        PreparedStatement statement = connStr.prepareStatement("UPDATE product SET name = ? , price=?, amount=? WHERE id = ?");
+        statement.setString(1, product.getName() );
+        statement.setDouble(2, product.getPrice() );
+        statement.setDouble(3, product.getAmount() );
+        statement.setInt(4, id );
 
-            System.out.println();
-            PreparedStatement statement = connStr.prepareStatement("UPDATE product SET price = ? WHERE name = ?");
+        statement.executeUpdate();
+
+        statement.close();
+return res;
+    }
+    public Product updatePrice(int id,  double quantity) throws SQLException {
+        PreparedStatement statement2 = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+        statement2.setInt(1, id);
+        ResultSet resSet = statement2.executeQuery();
+        Product res=new Product();
+        while (resSet.next()) {
+            res= new Product(resSet.getString(1),resSet.getDouble(2), resSet.getDouble(3));
+        }
+        resSet.close();
+            PreparedStatement statement = connStr.prepareStatement("UPDATE product SET price = ? WHERE id = ?");
             statement.setDouble(1, quantity );
-            statement.setString(2, name_product );
-
+            statement.setInt(2, id );
 
             statement.executeUpdate();
 
             statement.close();
-
-
-        }catch (SQLException e){
-            System.out.println("Не вірний SQL запит на вставку");
-            e.printStackTrace();
-        }
+return res;
 
     }
-    public void updateAmount(String name_product,  double quantity){
-        try{
-
-            System.out.println();
-            PreparedStatement statement = connStr.prepareStatement("UPDATE product SET amount = ? WHERE name = ?");
-
-
-            statement.setDouble(1, quantity );
-            statement.setString(2, name_product );
-
-            statement.executeUpdate();
-
-            statement.close();
-
-
-        }catch (SQLException e){
-            System.out.println("Не вірний SQL запит на вставку");
-            e.printStackTrace();
+    public Product updateAmount(int id,  double quantity) throws SQLException {
+        PreparedStatement statement2 = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+        statement2.setInt(1, id);
+        ResultSet resSet = statement2.executeQuery();
+        Product res=new Product();
+        while (resSet.next()) {
+            res= new Product(resSet.getString(1),resSet.getDouble(2), resSet.getDouble(3));
         }
+        resSet.close();
+        PreparedStatement statement = connStr.prepareStatement("UPDATE product SET amount = ? WHERE id = ?");
+        statement.setDouble(1, quantity );
+        statement.setInt(2, id );
+        statement.executeUpdate();
 
+        statement.close();
+        return res;
+    }
+    public Product updateName(int id, String name) throws SQLException {
+        PreparedStatement statement2 = connStr.prepareStatement("SELECT * FROM product WHERE id =  ?");
+        statement2.setInt(1, id);
+        ResultSet resSet = statement2.executeQuery();
+        Product res=new Product();
+        while (resSet.next()) {
+            res= new Product(resSet.getString(1),resSet.getDouble(2), resSet.getDouble(3));
+        }
+        resSet.close();
+
+        PreparedStatement statement = connStr.prepareStatement("UPDATE product SET name = ? WHERE id = ?");
+        statement.setString(1, name);
+        statement.setInt(2, id );
+        statement.executeUpdate();
+
+        statement.close();
+        return  res;
     }
     public List<Product> listByName(String prodName){
         List<Product> productList = new ArrayList<>();
