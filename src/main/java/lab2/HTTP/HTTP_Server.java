@@ -29,7 +29,6 @@ public class HTTP_Server {
         comm.Create();
         Product prod = new Product("meet", 23, 45);
         comm.Insert(prod);
-        System.out.println(prod.getId());
         // comm.InsertUser(new User("login5","5f4dcc3b5aa765d61d8327deb882cf99"));
         ObjectMapper myMapper = new ObjectMapper();
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -55,7 +54,6 @@ public class HTTP_Server {
                     User find = comm.getUserByLogin(user.getLogin());
                     if (find != null) {
                         String ps=user.getPassword();
-                        System.out.println(hashMD(ps));
                         if (find.getPassword().equals(hashMD(ps))) {
                             exchange.getResponseHeaders().set("Authorization", createJWT(find.getLogin()));
                             exchange.sendResponseHeaders(200, 0);
@@ -77,14 +75,12 @@ public class HTTP_Server {
         HttpContext context = server.createContext("/api/good/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-                System.out.println(exchange.getPrincipal());
                 if (exchange.getRequestMethod().equals("GET")) {
                     String s = String.valueOf(exchange.getRequestURI());
                     int id = 0;
                     Product responseProd = null;
                     try {
                         id = Integer.parseInt(s.substring("/api/good/".length(), s.length()));
-                        //System.out.println(id);
                     } catch (Exception ex) {
                         exchange.sendResponseHeaders(404, 0);
                         ex.printStackTrace();
@@ -206,7 +202,6 @@ public class HTTP_Server {
 
 
                 }
-                System.out.println("kk");
                 return new Failure(403);
             }
         });
